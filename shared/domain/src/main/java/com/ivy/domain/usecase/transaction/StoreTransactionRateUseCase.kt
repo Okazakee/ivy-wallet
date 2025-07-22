@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.primitive.AssetCode
+import com.ivy.data.repository.AccountRepository
 import com.ivy.data.repository.ExchangeRatesRepository
 import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.remote.impl.RealTimeCryptoRateProvider
@@ -14,6 +15,7 @@ class StoreTransactionRateUseCase @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val exchangeRatesRepository: ExchangeRatesRepository,
     private val realTimeCryptoRateProvider: RealTimeCryptoRateProvider,
+    private val accountRepository: AccountRepository,
 ) {
     /**
      * Fetches and stores the current exchange rate for a transaction if it involves crypto currencies.
@@ -21,17 +23,23 @@ class StoreTransactionRateUseCase @Inject constructor(
      */
     suspend fun storeRateForTransaction(transaction: Transaction): Either<String, Transaction> = either {
         // Get account information directly from transaction properties
-        val fromAccount = when (transaction) {
+        val fromAccountId = when (transaction) {
             is com.ivy.data.model.Expense -> transaction.account
             is com.ivy.data.model.Income -> transaction.account
             is com.ivy.data.model.Transfer -> transaction.fromAccount
         }
         
-        val toAccount = when (transaction) {
+        val toAccountId = when (transaction) {
             is com.ivy.data.model.Expense -> null
             is com.ivy.data.model.Income -> null
             is com.ivy.data.model.Transfer -> transaction.toAccount
         }
+        
+        // Get the actual account objects to access their assets
+        val fromAccount = accountRepository.findById(fromAccountId)
+        ensureNotNull(fromAccount) { "Source account not found: $fromAccountId" }
+        
+        val toAccount = toAccountId?.let { accountRepository.findById(it) }
         
         // Only store rates for crypto transactions (BTC, SATS) or cross-currency transfers
         val shouldStoreRate = when {
