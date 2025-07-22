@@ -16,5 +16,6 @@ value class AssetCode private constructor(val code: String) {
         val USD = AssetCode.unsafe("USD")
         val EUR = AssetCode.unsafe("EUR")
         val GBP = AssetCode.unsafe("GBP")
+        val SATS = AssetCode.unsafe("SATS")
     }
 }

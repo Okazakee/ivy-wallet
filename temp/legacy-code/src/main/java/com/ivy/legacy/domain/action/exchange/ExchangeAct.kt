@@ -18,10 +18,21 @@ class ExchangeAct @Inject constructor(
     private val realTimeCryptoRateProvider: RealTimeCryptoRateProvider,
 ) : FPAction<ExchangeAct.Input, Option<BigDecimal>>() {
     override suspend fun Input.compose(): suspend () -> Option<BigDecimal> = suspend {
-        // Try real-time rate for BTC
-        if (data.fromCurrency.fold({ false }) { it == "BTC" } && data.toCurrency != "BTC") {
-            Timber.d("Attempting real-time BTC/${data.toCurrency} rate")
-            val realTimeRate = realTimeCryptoRateProvider.getRate("BTC", data.toCurrency)
+        // Try real-time rate for BTC and SATS
+        if (data.fromCurrency.fold({ false }) { it == "BTC" || it == "SATS" } && data.toCurrency != "BTC" && data.toCurrency != "SATS") {
+            val fromCurrency = data.fromCurrency.fold({ "" }) { it }
+            Timber.d("Attempting real-time $fromCurrency/${data.toCurrency} rate")
+            
+            val realTimeRate = if (fromCurrency == "SATS") {
+                // For SATS, get BTC rate and divide by 100M
+                val btcRate = realTimeCryptoRateProvider.getRate("BTC", data.toCurrency)
+                if (btcRate != null) {
+                    btcRate / 100_000_000.0
+                } else null
+            } else {
+                realTimeCryptoRateProvider.getRate(fromCurrency, data.toCurrency)
+            }
+            
             if (realTimeRate != null) {
                 Timber.d("Using real-time rate: $realTimeRate")
                 val convertedAmount = amount * BigDecimal.valueOf(realTimeRate)

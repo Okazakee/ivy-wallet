@@ -21,8 +21,23 @@ class RealTimeCryptoRateProvider @Inject constructor(
     )
 
     suspend fun getRate(crypto: String, fiat: String): Double? {
+        // Handle SATS by using BTC rate divided by 100M
+        if (crypto.uppercase() == "SATS") {
+            val btcRate = getBtcRate(fiat)
+            return btcRate?.div(100_000_000.0)
+        }
+        
+        // For other cryptos, try all sources
         for (source in sources) {
             val rate = source.fetchRate(crypto, fiat)
+            if (rate != null) return rate
+        }
+        return null
+    }
+    
+    private suspend fun getBtcRate(fiat: String): Double? {
+        for (source in sources) {
+            val rate = source.fetchRate("BTC", fiat)
             if (rate != null) return rate
         }
         return null
