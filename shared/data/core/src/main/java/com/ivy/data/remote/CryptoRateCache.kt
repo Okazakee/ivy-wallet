@@ -4,9 +4,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CryptoRateCache @Inject constructor(
-    private val expiryMillis: Long = 5 * 60 * 1000 // 5 minutes by default
-) {
+class CryptoRateCache @Inject constructor() {
+    private val expiryMillis: Long = 5 * 60 * 1000 // 5 minutes
+    
     private data class CacheKey(val crypto: String, val fiat: String)
     private data class CacheEntry(val rate: Double, val timestamp: Long)
 
