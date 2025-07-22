@@ -31,7 +31,6 @@ import com.ivy.data.repository.TransactionRepository
 import com.ivy.data.repository.mapper.TagMapper
 import com.ivy.data.repository.mapper.TransactionMapper
 import com.ivy.domain.features.Features
-import com.ivy.domain.usecase.transaction.StoreTransactionRateUseCase
 import com.ivy.legacy.data.EditTransactionDisplayLoan
 import com.ivy.legacy.datamodel.Account
 import com.ivy.legacy.datamodel.temp.toDomain
@@ -108,7 +107,6 @@ class EditTransactionViewModel @Inject constructor(
     private val timeConverter: TimeConverter,
     private val timeProvider: TimeProvider,
     private val dateTimePicker: DateTimePicker,
-    private val storeTransactionRateUseCase: StoreTransactionRateUseCase,
 ) : ComposeViewModel<EditTransactionViewState, EditTransactionViewEvent>() {
 
     private var transactionType by mutableStateOf(TransactionType.EXPENSE)
@@ -752,10 +750,7 @@ class EditTransactionViewModel @Inject constructor(
                 // Convert to domain model and store exchange rate if needed
                 loadedTransaction().toDomain(transactionMapper)?.let { domainTransaction ->
                     // Store exchange rate for crypto transactions
-                    val transactionWithRate = storeTransactionRateUseCase.storeRateForTransaction(domainTransaction)
-                        .getOrElse { domainTransaction } // Fallback to original if rate storage fails
-                    
-                    transactionRepo.save(transactionWithRate)
+                    transactionRepo.save(domainTransaction)
                 }
 
                 refreshWidget(WalletBalanceWidgetReceiver::class.java)
