@@ -2,6 +2,7 @@ package com.ivy.domain.usecase.transaction
 
 import arrow.core.Either
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import com.ivy.data.model.Transaction
 import com.ivy.data.model.primitive.AssetCode
 import com.ivy.data.repository.AccountRepository
