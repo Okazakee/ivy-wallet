@@ -20,8 +20,18 @@ class StoreTransactionRateUseCase @Inject constructor(
      * This ensures historical accuracy by storing the rate at the time of transaction creation.
      */
     suspend fun storeRateForTransaction(transaction: Transaction): Either<String, Transaction> = either {
-        val fromAccount = transaction.getFromAccount()
-        val toAccount = transaction.getToAccount()
+        // Get account information directly from transaction properties
+        val fromAccount = when (transaction) {
+            is com.ivy.data.model.Expense -> transaction.account
+            is com.ivy.data.model.Income -> transaction.account
+            is com.ivy.data.model.Transfer -> transaction.fromAccount
+        }
+        
+        val toAccount = when (transaction) {
+            is com.ivy.data.model.Expense -> null
+            is com.ivy.data.model.Income -> null
+            is com.ivy.data.model.Transfer -> transaction.toAccount
+        }
         
         // Only store rates for crypto transactions (BTC, SATS) or cross-currency transfers
         val shouldStoreRate = when {
