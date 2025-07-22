@@ -35,18 +35,15 @@ platform :android do
         )
     end
 
-    desc "Releases a generated AAB to Google PlayStore's Internal Testing"
-    lane :internal_release do
-        supply(
-            track: "internal",
-            aab: "app/build/outputs/bundle/release/app-release.aab",
-            #release_status: "draft",
-            rollout: "1",
-            skip_upload_apk: true,
-            skip_upload_metadata: true,
-            skip_upload_changelogs: false,
-            skip_upload_images: true,
-            skip_upload_screenshots: true
+    desc "Builds release APK for direct distribution."
+    lane :production_build_apk do
+        gradle(
+            task: "clean"
+        )
+
+        gradle(
+            task: "assemble",
+            build_type: "Release"
         )
     end
 

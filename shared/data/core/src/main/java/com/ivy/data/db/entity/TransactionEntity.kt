@@ -57,6 +57,12 @@ data class TransactionEntity(
     @SerialName("loanRecordId")
     @Serializable(with = KSerializerUUID::class)
     val loanRecordId: UUID? = null,
+    // Exchange rate at the time of transaction creation for historical accuracy
+    @SerialName("exchangeRateAtTime")
+    val exchangeRateAtTime: Double? = null,
+    // Currency code for the exchange rate (e.g., "USD", "EUR")
+    @SerialName("exchangeRateCurrency")
+    val exchangeRateCurrency: String? = null,
     @Deprecated("Obsolete field used for cloud sync. Can't be deleted because of backwards compatibility")
     @SerialName("isSynced")
     val isSynced: Boolean = false,

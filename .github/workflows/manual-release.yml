@@ -51,14 +51,14 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build production App Bundle
-        run: bundle exec fastlane production_build
+      - name: Build production APK
+        run: bundle exec fastlane production_build_apk
 
-      - name: Upload App Bundle to GitHub
+      - name: Upload APK to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.aab
-          path: app/build/outputs/bundle/release/app-release.aab
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
 
       - name: Create Release
         id: create_release
@@ -75,6 +75,7 @@ jobs:
             - Added SATS support with real-time rates
             - SATS uses BTC rate divided by 100M for conversion
             - Real-time crypto rates for BTC and SATS
+            - Historical exchange rate storage for transactions
           draft: false
           prerelease: false
 
@@ -84,6 +85,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app/build/outputs/bundle/release/app-release.aab
-          asset_name: app-release.aab
-          asset_content_type: application/octet-stream 
+          asset_path: ./app/build/outputs/apk/release/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/vnd.android.package-archive 

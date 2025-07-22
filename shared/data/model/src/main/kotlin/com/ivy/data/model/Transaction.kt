@@ -71,6 +71,10 @@ data class TransactionMetadata(
     val loanId: UUID? = null,
     // This refers to the loan record id that is linked with a transaction
     val loanRecordId: UUID?,
+    // Exchange rate at the time of transaction creation for historical accuracy
+    val exchangeRateAtTime: Double? = null,
+    // Currency code for the exchange rate (e.g., "USD", "EUR")
+    val exchangeRateCurrency: String? = null,
 )
 
 fun Transaction.getFromValue(): PositiveValue = when (this) {
