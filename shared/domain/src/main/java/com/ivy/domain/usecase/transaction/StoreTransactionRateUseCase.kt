@@ -37,13 +37,13 @@ class StoreTransactionRateUseCase @Inject constructor(
         
         // Get the actual account objects to access their assets
         val fromAccount = accountRepository.findById(fromAccountId)
-        ensureNotNull(fromAccount) { "Source account not found: $fromAccountId" }
+        ensure(fromAccount != null) { "Source account not found: $fromAccountId" }
         
         val toAccount = toAccountId?.let { accountRepository.findById(it) }
         
         // Only store rates for crypto transactions (BTC, SATS) or cross-currency transfers
         val shouldStoreRate = when {
-            fromAccount.asset.code in listOf("BTC", "SATS") -> true
+            fromAccount!!.asset.code in listOf("BTC", "SATS") -> true
             toAccount?.asset.code in listOf("BTC", "SATS") -> true
             fromAccount.asset != toAccount?.asset -> true
             else -> false
