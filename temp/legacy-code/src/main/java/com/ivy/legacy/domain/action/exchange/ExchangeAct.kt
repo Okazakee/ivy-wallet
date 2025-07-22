@@ -1,6 +1,7 @@
 package com.ivy.wallet.domain.action.exchange
 
 import arrow.core.Option
+import arrow.core.Some
 import com.ivy.data.db.dao.read.ExchangeRatesDao
 import com.ivy.data.remote.impl.RealTimeCryptoRateProvider
 import com.ivy.frp.action.FPAction
@@ -24,20 +25,28 @@ class ExchangeAct @Inject constructor(
             if (realTimeRate != null) {
                 Timber.d("Using real-time rate: $realTimeRate")
                 val convertedAmount = amount * BigDecimal.valueOf(realTimeRate)
-                return@compose Option.Some(convertedAmount)
+                Some(convertedAmount)
             } else {
                 Timber.d("Real-time rate failed, falling back to database")
+                // Fallback to database rates
+                exchange(
+                    data = data,
+                    amount = amount,
+                    getExchangeRate = exchangeRatesDao::findByBaseCurrencyAndCurrency then {
+                        it?.toLegacyDomain()
+                    }
+                )
             }
+        } else {
+            // Fallback to database rates
+            exchange(
+                data = data,
+                amount = amount,
+                getExchangeRate = exchangeRatesDao::findByBaseCurrencyAndCurrency then {
+                    it?.toLegacyDomain()
+                }
+            )
         }
-        
-        // Fallback to database rates
-        exchange(
-            data = data,
-            amount = amount,
-            getExchangeRate = exchangeRatesDao::findByBaseCurrencyAndCurrency then {
-                it?.toLegacyDomain()
-            }
-        )
     }
 
     data class Input(
