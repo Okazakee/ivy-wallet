@@ -65,8 +65,8 @@ class StoreTransactionRateUseCase @Inject constructor(
             else -> {
                 // For other currencies, try to get from exchange rates repository
                 val rates = exchangeRatesRepository.findAll().first()
-                rates.find { 
-                    it.baseCurrency == fromAccount.asset && it.currency == targetCurrency 
+                rates.find { rate -> 
+                    rate.baseCurrency == fromAccount.asset && rate.currency == targetCurrency 
                 }?.rate?.value
             }
         }
