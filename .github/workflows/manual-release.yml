@@ -1,33 +1,28 @@
-name: Internal Release
+name: Manual Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 2025.01.17)'
+        required: true
+        default: '2025.01.17'
+      version_code:
+        description: 'Version code'
+        required: true
+        default: '207'
 
 jobs:
-  github_release:
+  manual_release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # Only allow specific authors to trigger releases
-    if: github.actor == 'Okazakee' || github.actor == 'github-actions[bot]'
 
     steps:
       - name: Checkout GIT
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
-
-      - name: Verify Commit Author
-        id: verify_author
-        run: |
-          AUTHOR=$(git log -1 --pretty=format:'%an')
-          ALLOWED_AUTHORS=("Okazakee" "github-actions[bot]")
-          if [[ ! " ${ALLOWED_AUTHORS[@]} " =~ " ${AUTHOR} " ]]; then
-            echo "Commit not authored by allowed user, exiting."
-            exit 1
-          fi
+          fetch-depth: 0
 
       - name: Setup Java SDK
         uses: actions/setup-java@v4
@@ -35,7 +30,7 @@ jobs:
           distribution: 'adopt'
           java-version: '18'
 
-      - name: Enable Gradle Wrapper caching (optimization)
+      - name: Enable Gradle Wrapper caching
         uses: actions/cache@v4
         with:
           path: |
@@ -71,10 +66,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
+          tag_name: v${{ github.event.inputs.version }}-${{ github.event.inputs.version_code }}
+          release_name: Release v${{ github.event.inputs.version }} (${{ github.event.inputs.version_code }})
           body: |
-            Release v${{ github.run_number }}
+            Manual Release v${{ github.event.inputs.version }} (${{ github.event.inputs.version_code }})
             
             Changes:
             - Added SATS support with real-time rates
@@ -91,4 +86,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./app/build/outputs/bundle/release/app-release.aab
           asset_name: app-release.aab
-          asset_content_type: application/octet-stream
+          asset_content_type: application/octet-stream 
