@@ -19,11 +19,11 @@ class ExchangeAct @Inject constructor(
 ) : FPAction<ExchangeAct.Input, Option<BigDecimal>>() {
     override suspend fun Input.compose(): suspend () -> Option<BigDecimal> = suspend {
         // Try real-time rate for BTC and SATS
-        if (data.fromCurrency.fold({ false }) { it == "BTC" || it == "SATS" } && data.toCurrency != "BTC" && data.toCurrency != "SATS") {
+        if (data.fromCurrency.fold({ false }) { it.uppercase() == "BTC" || it.uppercase() == "SATS" } && data.toCurrency.uppercase() != "BTC" && data.toCurrency.uppercase() != "SATS") {
             val fromCurrency = data.fromCurrency.fold({ "" }) { it }
             Timber.d("Attempting real-time $fromCurrency/${data.toCurrency} rate")
             
-            val realTimeRate = if (fromCurrency == "SATS") {
+            val realTimeRate = if (fromCurrency.uppercase() == "SATS") {
                 // For SATS, get BTC rate and divide by 100M
                 val btcRate = realTimeCryptoRateProvider.getRate("BTC", data.toCurrency)
                 if (btcRate != null) {
