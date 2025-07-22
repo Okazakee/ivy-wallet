@@ -45,7 +45,7 @@ class StoreTransactionRateUseCase @Inject constructor(
         // Only store rates for crypto transactions (BTC, SATS) or cross-currency transfers
         val shouldStoreRate = when {
             fromAccount!!.asset.code in listOf("BTC", "SATS") -> true
-            toAccount?.asset.code in listOf("BTC", "SATS") -> true
+            toAccount?.asset?.code in listOf("BTC", "SATS") -> true
             fromAccount.asset != toAccount?.asset -> true
             else -> false
         }
@@ -60,7 +60,7 @@ class StoreTransactionRateUseCase @Inject constructor(
                 // For crypto transactions, store rate to base currency (usually USD)
                 AssetCode.USD
             }
-            toAccount?.asset.code in listOf("BTC", "SATS") -> {
+            toAccount?.asset?.code in listOf("BTC", "SATS") -> {
                 // For crypto transactions, store rate to base currency (usually USD)
                 AssetCode.USD
             }
