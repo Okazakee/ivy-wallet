@@ -21,6 +21,11 @@ data class IvyCurrency(
                 isCrypto = true
             ),
             IvyCurrency(
+                code = "SATS",
+                name = "Satoshis",
+                isCrypto = true
+            ),
+            IvyCurrency(
                 code = "ETH",
                 name = "Ethereum",
                 isCrypto = true
